@@ -39,7 +39,7 @@ func init() {
       "container": "gcr.io/direktiv/functions/nutanix",
       "issues": "https://github.com/direktiv-apps/nutanix/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "This function gives access to Nutanix API v3. PLease use the Nutanix's API Explorer to see the available API commands. ",
+      "long-description": "This function gives access to Nutanix APIs. PLease use the Nutanix's API Explorer to see the available API commands. More informtaion at [https://www.nutanix.dev](https://www.nutanix.dev).",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/nutanix"
     }
@@ -97,9 +97,7 @@ func init() {
                 "auth": {
                   "type": "object",
                   "required": [
-                    "host",
-                    "username",
-                    "password"
+                    "host"
                   ],
                   "properties": {
                     "host": {
@@ -114,6 +112,10 @@ func init() {
                       "description": "Skip SSL certificate verification",
                       "type": "boolean",
                       "default": false
+                    },
+                    "token": {
+                      "description": "Token authentication for e.g. Move",
+                      "type": "string"
                     },
                     "username": {
                       "description": "Nutanix username",
@@ -183,20 +185,22 @@ func init() {
                 "kind": "string",
                 "value": "{{ .API.Body | toJson }}"
               },
-              "debug": true,
               "headers": [
                 {
                   "Content-Type": "application/json"
                 },
                 {
                   "Accept": "application/json"
+                },
+                {
+                  "Authorization": "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}"
                 }
               ],
               "insecure": "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}",
               "method": "{{ if .API.Method }}{{ .API.Method }}{{ else }}GET{{ end }}",
-              "password": "{{ .Auth.Password }}",
-              "url": "{{ .Auth.Host }}/api/nutanix/v3{{ .API.Path }}",
-              "username": "{{ .Auth.Username }}"
+              "password": "{{ if .Auth.Password }}{{ .Auth.Password }}{{ end }}",
+              "url": "{{ .Auth.Host }}{{ .API.Path }}",
+              "username": "{{ if .Auth.Username }}{{ .Auth.Username }}{{ end }}"
             }
           ],
           "output": "{\n  \"nutanix\": {{ (index (index . 0) \"result\") | toJson }}\n}\n"
@@ -208,7 +212,7 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: nutanix\n  type: action\n  action:\n    function: nutanix\n    secrets: [\"nutanixpwd\"]\n    input: \n      auth:\n        host: https://myserver:9440\n        password: jq(.secrets.nutanixpwd)\n        username: myuser@nutanix\n        skipVerify: true\n      api:\n        path: \"/vms/list\"\n        method: POST\n        body:\n          kind: vm\n  catch:\n  - error: \"*\"",
+            "content": "- id: nutanix\n  type: action\n  action:\n    function: nutanix\n    secrets: [\"nutanixpwd\"]\n    input: \n      auth:\n        host: https://myserver:9440\n        password: jq(.secrets.nutanixpwd)\n        username: myuser@nutanix\n        skipVerify: true\n      api:\n        path: \"/api/nutanix/v3/vms/list\"\n        method: POST\n        body:\n          kind: vm\n  catch:\n  - error: \"*\"",
             "title": "Basic"
           }
         ],
@@ -289,7 +293,7 @@ func init() {
       "container": "gcr.io/direktiv/functions/nutanix",
       "issues": "https://github.com/direktiv-apps/nutanix/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "This function gives access to Nutanix API v3. PLease use the Nutanix's API Explorer to see the available API commands. ",
+      "long-description": "This function gives access to Nutanix APIs. PLease use the Nutanix's API Explorer to see the available API commands. More informtaion at [https://www.nutanix.dev](https://www.nutanix.dev).",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/nutanix"
     }
@@ -372,20 +376,22 @@ func init() {
                 "kind": "string",
                 "value": "{{ .API.Body | toJson }}"
               },
-              "debug": true,
               "headers": [
                 {
                   "Content-Type": "application/json"
                 },
                 {
                   "Accept": "application/json"
+                },
+                {
+                  "Authorization": "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}"
                 }
               ],
               "insecure": "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}",
               "method": "{{ if .API.Method }}{{ .API.Method }}{{ else }}GET{{ end }}",
-              "password": "{{ .Auth.Password }}",
-              "url": "{{ .Auth.Host }}/api/nutanix/v3{{ .API.Path }}",
-              "username": "{{ .Auth.Username }}"
+              "password": "{{ if .Auth.Password }}{{ .Auth.Password }}{{ end }}",
+              "url": "{{ .Auth.Host }}{{ .API.Path }}",
+              "username": "{{ if .Auth.Username }}{{ .Auth.Username }}{{ end }}"
             }
           ],
           "output": "{\n  \"nutanix\": {{ (index (index . 0) \"result\") | toJson }}\n}\n"
@@ -397,7 +403,7 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: nutanix\n  type: action\n  action:\n    function: nutanix\n    secrets: [\"nutanixpwd\"]\n    input: \n      auth:\n        host: https://myserver:9440\n        password: jq(.secrets.nutanixpwd)\n        username: myuser@nutanix\n        skipVerify: true\n      api:\n        path: \"/vms/list\"\n        method: POST\n        body:\n          kind: vm\n  catch:\n  - error: \"*\"",
+            "content": "- id: nutanix\n  type: action\n  action:\n    function: nutanix\n    secrets: [\"nutanixpwd\"]\n    input: \n      auth:\n        host: https://myserver:9440\n        password: jq(.secrets.nutanixpwd)\n        username: myuser@nutanix\n        skipVerify: true\n      api:\n        path: \"/api/nutanix/v3/vms/list\"\n        method: POST\n        body:\n          kind: vm\n  catch:\n  - error: \"*\"",
             "title": "Basic"
           }
         ],
@@ -506,9 +512,7 @@ func init() {
     "postParamsBodyAuth": {
       "type": "object",
       "required": [
-        "host",
-        "username",
-        "password"
+        "host"
       ],
       "properties": {
         "host": {
@@ -523,6 +527,10 @@ func init() {
           "description": "Skip SSL certificate verification",
           "type": "boolean",
           "default": false
+        },
+        "token": {
+          "description": "Token authentication for e.g. Move",
+          "type": "string"
         },
         "username": {
           "description": "Nutanix username",

@@ -14,8 +14,8 @@ info:
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
     long-description: >-
-      This function gives access to Nutanix API v3. PLease use the Nutanix's API Explorer to see the available
-      API commands. 
+      This function gives access to Nutanix APIs. PLease use the Nutanix's API Explorer to see the available
+      API commands. More informtaion at [https://www.nutanix.dev](https://www.nutanix.dev).
 consumes:
 - application/json
 produces:
@@ -60,7 +60,7 @@ paths:
             properties:
               auth:
                 type: object
-                required: ["host", "username", "password"]
+                required: ["host"]
                 properties:
                   host:
                     type: string
@@ -75,6 +75,9 @@ paths:
                   password: 
                     type: string
                     description: Nutanix password
+                  token:
+                    type: string
+                    description: Token authentication for e.g. Move
               api:
                 type: object
                 required: ["path"]
@@ -112,7 +115,7 @@ paths:
                     username: myuser@nutanix
                     skipVerify: true
                   api:
-                    path: "/vms/list"
+                    path: "/api/nutanix/v3/vms/list"
                     method: POST
                     body:
                       kind: vm
@@ -124,15 +127,15 @@ paths:
       x-direktiv:  
         cmds:
         - action: http
-          url: "{{ .Auth.Host }}/api/nutanix/v3{{ .API.Path }}"
+          url: "{{ .Auth.Host }}{{ .API.Path }}"
           method: "{{ if .API.Method }}{{ .API.Method }}{{ else }}GET{{ end }}"
           headers: 
           - Content-Type: application/json
           - Accept: application/json
+          - Authorization: "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}" 
           insecure: "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}"
-          username: "{{ .Auth.Username }}"
-          password: "{{ .Auth.Password }}"
-          debug: true
+          username: "{{ if .Auth.Username }}{{ .Auth.Username }}{{ end }}"
+          password: "{{ if .Auth.Password }}{{ .Auth.Password }}{{ end }}"
           data:   
             kind: string
             value:

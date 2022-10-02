@@ -25,15 +25,16 @@ type PostParamsBodyAuth struct {
 	Host *string `json:"host"`
 
 	// Nutanix password
-	// Required: true
-	Password *string `json:"password"`
+	Password string `json:"password,omitempty"`
 
 	// Skip SSL certificate verification
 	SkipVerify *bool `json:"skipVerify,omitempty"`
 
+	// Token authentication for e.g. Move
+	Token string `json:"token,omitempty"`
+
 	// Nutanix username
-	// Required: true
-	Username *string `json:"username"`
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this post params body auth
@@ -41,14 +42,6 @@ func (m *PostParamsBodyAuth) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateHost(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePassword(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUsername(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,24 +54,6 @@ func (m *PostParamsBodyAuth) Validate(formats strfmt.Registry) error {
 func (m *PostParamsBodyAuth) validateHost(formats strfmt.Registry) error {
 
 	if err := validate.Required("host", "body", m.Host); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PostParamsBodyAuth) validatePassword(formats strfmt.Registry) error {
-
-	if err := validate.Required("password", "body", m.Password); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PostParamsBodyAuth) validateUsername(formats strfmt.Registry) error {
-
-	if err := validate.Required("username", "body", m.Username); err != nil {
 		return err
 	}
 

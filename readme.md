@@ -14,7 +14,7 @@ Nutanix API access
 
 ## About nutanix
 
-This function gives access to Nutanix API v3. PLease use the Nutanix's API Explorer to see the available API commands. 
+This function gives access to Nutanix APIs. PLease use the Nutanix's API Explorer to see the available API commands. More informtaion at [https://www.nutanix.dev](https://www.nutanix.dev).
 
 ### Example(s)
   #### Function Configuration
@@ -38,7 +38,7 @@ functions:
         username: myuser@nutanix
         skipVerify: true
       api:
-        path: "/vms/list"
+        path: "/api/nutanix/v3/vms/list"
         method: POST
         body:
           kind: vm
@@ -157,8 +157,9 @@ functions:
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | host | string| `string` | ✓ | |  | `https://myserver:9440` |
-| password | string| `string` | ✓ | | Nutanix password |  |
+| password | string| `string` |  | | Nutanix password |  |
 | skipVerify | boolean| `bool` |  | | Skip SSL certificate verification |  |
-| username | string| `string` | ✓ | | Nutanix username |  |
+| token | string| `string` |  | | Token authentication for e.g. Move |  |
+| username | string| `string` |  | | Nutanix username |  |
 
  

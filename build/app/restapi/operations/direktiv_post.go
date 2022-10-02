@@ -158,7 +158,7 @@ func runCommand0(ctx context.Context,
 
 	baseInfo := func(paramsIn interface{}) (*baseRequest, error) {
 
-		u, err := templateString(`{{ .Auth.Host }}/api/nutanix/v3{{ .API.Path }}`, paramsIn)
+		u, err := templateString(`{{ .Auth.Host }}{{ .API.Path }}`, paramsIn)
 		if err != nil {
 			return nil, err
 		}
@@ -168,12 +168,12 @@ func runCommand0(ctx context.Context,
 			return nil, err
 		}
 
-		user, err := templateString(`{{ .Auth.Username }}`, paramsIn)
+		user, err := templateString(`{{ if .Auth.Username }}{{ .Auth.Username }}{{ end }}`, paramsIn)
 		if err != nil {
 			return nil, err
 		}
 
-		password, err := templateString(`{{ .Auth.Password }}`, paramsIn)
+		password, err := templateString(`{{ if .Auth.Password }}{{ .Auth.Password }}{{ end }}`, paramsIn)
 		if err != nil {
 			return nil, err
 		}
@@ -185,7 +185,7 @@ func runCommand0(ctx context.Context,
 			password: password,
 			err200:   convertTemplateToBool(`<no value>`, paramsIn, true),
 			insecure: convertTemplateToBool(`{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}`, paramsIn, false),
-			debug:    convertTemplateToBool(`true`, paramsIn, false),
+			debug:    convertTemplateToBool(`<no value>`, paramsIn, false),
 		}, nil
 
 	}
@@ -200,29 +200,32 @@ func runCommand0(ctx context.Context,
 	headers["Content-Type"] = Header0
 	Header1, err := templateString(`application/json`, params)
 	headers["Accept"] = Header1
+	Header2, err := templateString(`{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}`, params)
+	headers["Authorization"] = Header2
 
 	var data []byte
 
 	attachData := func(paramsIn interface{}, ri *apps.RequestInfo) ([]byte, error) {
 
-		fmt.Println("1")
 		kind, err := templateString(`string`, paramsIn)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("2")
+
 		d, err := templateString(`{{ .API.Body | toJson }}`, paramsIn)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("3")
+
+		if string(d) == "empty" {
+			return []byte("{}"), nil
+		}
+
 		if kind == "file" {
 			return os.ReadFile(filepath.Join(ri.Dir(), d))
 		} else if kind == "base64" {
 			return base64.StdEncoding.DecodeString(d)
 		}
-		fmt.Println("4")
-		fmt.Printf(">> %v\n", string(d))
 
 		return []byte(d), nil
 
@@ -232,6 +235,11 @@ func runCommand0(ctx context.Context,
 	if err != nil {
 		ir[resultKey] = err.Error()
 		return ir, err
+	}
+
+	if br.debug {
+		ri.Logger().Infof("Payload:")
+		ri.Logger().Infof(string(data))
 	}
 
 	if br.debug {
