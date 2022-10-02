@@ -1,0 +1,25 @@
+url: ""
+functions:
+- type: knative-workflow
+  id: nutanix
+  image: gcr.io/direktiv/functions/nutanix:test
+states:
+- id: state0
+  type: action
+  catch:
+  - error: '*'
+  action:
+    function: nutanix
+    input:
+      api:
+        body:
+          kind: vm
+        method: POST
+        path: /vms/list
+      auth:
+        host: https://myserver:9440
+        password: jq(.secrets.nutanixpwd)
+        skipVerify: true
+        username: myuser@nutanix
+    secrets:
+    - nutanixpwd

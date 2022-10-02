@@ -1,0 +1,197 @@
+swagger: "2.0"
+info:
+  description: Nutanix API access
+  title: nutanix
+  version: "1.0"
+  x-direktiv-meta:
+    container: gcr.io/direktiv/functions/nutanix
+    maintainer: |-
+      [direktiv.io](https://www.direktiv.io) 
+    issues: https://github.com/direktiv-apps/nutanix/issues
+    url: https://github.com/direktiv-apps/nutanix  
+    categories:
+    - infrastructure
+    license: |-
+      [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+    long-description: >-
+      This function gives access to Nutanix API v3. PLease use the Nutanix's API Explorer to see the available
+      API commands. 
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- http
+paths:
+  /: 
+    delete:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          description: |
+            On cancel Direktiv sends a DELETE request to
+            the action with id in the header
+      x-direktiv:
+        cancel: echo 'cancel {{ .DirektivActionID }}'
+      responses:
+        200:
+    post:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          default: development
+          description: |
+            direktiv action id is an UUID. 
+            For development it can be set to 'development'
+        - name: Direktiv-TempDir
+          in: header
+          type: string
+          default: /tmp
+          description: |
+            direktiv temp dir is the working directory for that request
+            For development it can be set to e.g. '/tmp'
+        - name: body
+          in: body
+          schema:
+            type: object
+            required: ["auth", "api"]
+            properties:
+              auth:
+                type: object
+                required: ["host", "username", "password"]
+                properties:
+                  host:
+                    type: string
+                    example: https://myserver:9440
+                  skipVerify:
+                    type: boolean
+                    description: Skip SSL certificate verification
+                    default: false
+                  username:
+                    type: string
+                    description: Nutanix username
+                  password: 
+                    type: string
+                    description: Nutanix password
+              api:
+                type: object
+                required: ["path"]
+                properties:
+                  path:
+                    type: string
+                    description: API path to access
+                    example: /vms/list
+                  method: 
+                    type: string
+                    example: POST
+                    description: HTTP method to use
+                    default: GET
+                  body: 
+                    additionalProperties: {}
+      # direktiv code generation is configured here
+      x-direktiv-function: |-
+        functions:
+        - id: nutanix
+          image: gcr.io/direktiv/functions/nutanix:1.0
+          type: knative-workflow
+      x-direktiv-examples:
+        # ADD MORE EXAMPLES HERE
+        - title: Basic
+          content: |-
+            - id: nutanix
+              type: action
+              action:
+                function: nutanix
+                secrets: ["nutanixpwd"]
+                input: 
+                  auth:
+                    host: https://myserver:9440
+                    password: jq(.secrets.nutanixpwd)
+                    username: myuser@nutanix
+                    skipVerify: true
+                  api:
+                    path: "/vms/list"
+                    method: POST
+                    body:
+                      kind: vm
+              catch:
+              - error: "*"
+      x-direktiv-secrets:
+        - name: nutanixpwd
+          description: Password for the Nutanix user
+      x-direktiv:  
+        cmds:
+        - action: http
+          url: "{{ .Auth.Host }}/api/nutanix/v3{{ .API.Path }}"
+          method: "{{ if .API.Method }}{{ .API.Method }}{{ else }}GET{{ end }}"
+          headers: 
+          - Content-Type: application/json
+          - Accept: application/json
+          insecure: "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}"
+          username: "{{ .Auth.Username }}"
+          password: "{{ .Auth.Password }}"
+          debug: true
+          data:   
+            kind: string
+            value:
+              "{{ .API.Body | toJson }}"
+        output: |
+          {
+            "nutanix": {{ (index (index . 0) "result") | toJson }}
+          }
+      x-direktiv-errors:
+        io.direktiv.command.error: Command execution failed
+        io.direktiv.output.error: Template error for output generation of the service
+        io.direktiv.ri.error: Can not create information object from request
+      responses:
+        200:
+          description: Nutanix API response.
+          examples:
+            nutanix:
+              api_version: "3.1"
+              entities:
+              - metadata:
+                  categories: {}
+                  categories_mapping: {}
+                  creation_time: '2021-12-02T12:37:54Z'
+                  entity_version: '22'
+                  kind: vm
+                  last_update_time: '2022-08-05T10:40:01Z'
+                  owner_reference:
+                    kind: user
+                    name: admin
+                    uuid: 00000000-0000-0000-0000-000000000000
+          schema:
+            type: object
+            properties:
+              nutanix:
+                type: object
+                additionalProperties: {}
+        default:
+          description: generic error response
+          headers:
+            Direktiv-ErrorCode:
+              type: string
+            Direktiv-ErrorMessage:
+              type: string
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  direktivFile:
+    type: object
+    x-go-type:
+      type: DirektivFile
+      import:
+        package: github.com/direktiv/apps/go/pkg/apps 
+  error:
+    type: object
+    required:
+      - errorCode
+      - errorMessage
+    properties:
+      errorCode:
+        type: string
+      errorMessage:
+        type: string
