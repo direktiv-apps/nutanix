@@ -4,7 +4,7 @@
 Nutanix API access
 
 ---
-- #### Categories: unknown
+- #### Categories: infrastructure
 - #### Image: gcr.io/direktiv/functions/nutanix 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/nutanix/issues
