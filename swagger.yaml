@@ -132,7 +132,7 @@ paths:
           headers: 
           - Content-Type: application/json
           - Accept: application/json
-          - Authorization: "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}" 
+          - Authorization: "{{ if .Body.Auth.Token }}{{ .Body.Auth.Token }}{{ end }}" 
           insecure: "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}"
           username: "{{ if .Auth.Username }}{{ .Auth.Username }}{{ end }}"
           password: "{{ if .Auth.Password }}{{ .Auth.Password }}{{ end }}"

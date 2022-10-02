@@ -200,7 +200,7 @@ func runCommand0(ctx context.Context,
 	headers["Content-Type"] = Header0
 	Header1, err := templateString(`application/json`, params)
 	headers["Accept"] = Header1
-	Header2, err := templateString(`{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}`, params)
+	Header2, err := templateString(`{{ if .Body.Auth.Token }}{{ .Body.Auth.Token }}{{ end }}`, params)
 	headers["Authorization"] = Header2
 
 	var data []byte

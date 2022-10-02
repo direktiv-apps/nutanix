@@ -193,7 +193,7 @@ func init() {
                   "Accept": "application/json"
                 },
                 {
-                  "Authorization": "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}"
+                  "Authorization": "{{ if .Body.Auth.Token }}{{ .Body.Auth.Token }}{{ end }}"
                 }
               ],
               "insecure": "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}",
@@ -384,7 +384,7 @@ func init() {
                   "Accept": "application/json"
                 },
                 {
-                  "Authorization": "{{ if .Auth.Token }}{{- .Auth.Token }}{{- end }}"
+                  "Authorization": "{{ if .Body.Auth.Token }}{{ .Body.Auth.Token }}{{ end }}"
                 }
               ],
               "insecure": "{{ if .Auth.SkipVerify }}true{{ else }}false{{ end }}",

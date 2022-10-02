@@ -20,6 +20,7 @@ Scenario: get request
 			"host": "https://SERVER:9440",
 			"password": #(nutanixpwd),
 			"username": "USER",
+			"token": "123",
 			"skipVerify": true
 		},
 		"api": {
